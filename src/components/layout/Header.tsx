@@ -35,7 +35,7 @@ export const Header = () => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut", type: "spring", stiffness: 100, damping: 20 }}
     >
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between flex-nowrap min-w-0">
         <Link to="/" className="flex items-center space-x-3 group">
           <motion.div 
             className="w-10 h-10 rounded-xl flex items-center justify-center shadow-elevation group-hover:shadow-glow transition-all duration-300 overflow-hidden bg-gradient-civic"
@@ -43,9 +43,9 @@ export const Header = () => {
             whileTap={{ scale: 0.95 }}
           >
             <img 
-              src="/lovable-uploads/d7a198c8-0fc9-4dac-9a40-1a10fa2564a7.png" 
-              alt="CivicLedger Logo" 
-              className="w-full h-full object-contain filter brightness-0 invert"
+              src="/civic-logo.png"
+              alt="CivicLedger Logo"
+              className="w-full h-full object-contain"
             />
           </motion.div>
           <div className="flex flex-col">
@@ -60,7 +60,7 @@ export const Header = () => {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center space-x-8">
+        <nav className="hidden lg:flex items-center space-x-8 flex-nowrap min-w-0">
           <Link to="/dashboard" className="nav-item text-sm font-semibold text-civic-slate hover:text-civic-blue transition-all duration-300 py-2">
             Live Dashboard
           </Link>
