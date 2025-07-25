@@ -64,6 +64,12 @@ export const Header = () => {
           <Link to="/dashboard" className="nav-item text-sm font-semibold text-civic-slate hover:text-civic-blue transition-all duration-300 py-2">
             Live Dashboard
           </Link>
+          <Link to="/mock-dashboard" className="nav-item text-sm font-semibold text-civic-slate hover:text-civic-blue transition-all duration-300 py-2">
+            Mock Dashboard
+          </Link>
+          <Link to="/real-time-dashboard" className="nav-item text-sm font-semibold text-civic-slate hover:text-civic-blue transition-all duration-300 py-2">
+            Real-Time Dashboard
+          </Link>
           <Link to="/voting" className="nav-item text-sm font-semibold text-civic-slate hover:text-civic-blue transition-all duration-300 py-2">
             DAO Voting
           </Link>

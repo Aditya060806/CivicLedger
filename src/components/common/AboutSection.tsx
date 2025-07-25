@@ -1,123 +1,102 @@
-import React from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { GlassCard } from "@/components/common/GlassCard";
 import { 
+  Github, 
+  ExternalLink, 
+  Mail, 
   Shield, 
   Users, 
   Zap, 
-  Globe, 
-  Github, 
-  Linkedin, 
-  Heart,
-  Target,
-  Eye,
-  Lock,
-  BookOpen,
+  Globe,
   Award,
+  Code,
+  Database,
+  Lock,
   TrendingUp
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { EnhancedCard, FeatureCard } from "./EnhancedCard";
-import { Separator } from "@/components/ui/separator";
 
 export const AboutSection = () => {
-  const missionValues = [
+  const teamMembers = [
     {
-      icon: Target,
-      title: "Mission",
-      description: "To revolutionize governance through transparent, automated smart contracts that ensure every policy is executed with complete accountability and citizen oversight."
+      name: "Policy Engine Team",
+      role: "Smart Contract Development",
+      avatar: "🏛️",
+      expertise: "Rust, ICP Canisters, Blockchain"
     },
     {
-      icon: Eye,
-      title: "Vision", 
-      description: "A future where government operations are fully transparent, corruption is eliminated through blockchain technology, and citizens actively participate in governance decisions."
+      name: "AI Integration Team", 
+      role: "Machine Learning & Analysis",
+      avatar: "🧠",
+      expertise: "LLM, Sentiment Analysis, NLP"
     },
     {
-      icon: Heart,
-      title: "Values",
-      description: "Transparency, Accountability, Innovation, Citizen Empowerment, and Democratic Participation form the core of our platform's philosophy."
+      name: "Frontend Team",
+      role: "User Experience & Interface",
+      avatar: "🎨", 
+      expertise: "React, TypeScript, Tailwind"
+    },
+    {
+      name: "Governance Team",
+      role: "DAO & Voting Systems",
+      avatar: "🗳️",
+      expertise: "Decentralized Governance, Consensus"
     }
   ];
 
-  const platformFeatures = [
+  const features = [
     {
-      icon: Lock,
-      title: "Blockchain Security",
-      description: "Military-grade encryption and immutable ledger technology ensure data integrity and prevent unauthorized modifications."
+      icon: Shield,
+      title: "Transparent Governance",
+      description: "Every policy becomes an immutable smart contract with full execution transparency"
+    },
+    {
+      icon: Zap,
+      title: "Real-time Execution",
+      description: "Automated fund flow and policy execution with instant status updates"
     },
     {
       icon: Users,
       title: "Citizen Participation",
-      description: "Direct involvement in governance through voting, feedback, complaints, and real-time tracking of policy implementations."
+      description: "Direct involvement in policy tracking, complaints, and DAO voting"
     },
     {
-      icon: Zap,
-      title: "Smart Automation",
-      description: "Automated policy execution through smart contracts eliminates delays and ensures compliance with predefined conditions."
-    },
-    {
-      icon: TrendingUp,
-      title: "Real-time Analytics",
-      description: "Live dashboards and reports provide instant insights into fund utilization, project progress, and governance metrics."
+      icon: Database,
+      title: "ICP Blockchain",
+      description: "Built on Internet Computer Protocol for decentralized, secure governance"
     }
   ];
 
-  const teamMembers = [
+  const techStack = [
     {
-      name: "Dr. Rajesh Kumar",
-      role: "Chief Technology Officer",
-      specialty: "Blockchain Architecture",
-      description: "15+ years in distributed systems and blockchain technology",
-      image: "RK"
+      category: "Backend",
+      technologies: ["Rust", "ICP Canisters", "Candid", "Stable Storage"]
     },
     {
-      name: "Priya Sharma",
-      role: "Head of Design",
-      specialty: "User Experience",
-      description: "Former Google designer specializing in government interfaces",
-      image: "PS"
+      category: "Frontend", 
+      technologies: ["React 18", "TypeScript", "Tailwind CSS", "Framer Motion"]
     },
     {
-      name: "Amit Singh",
-      role: "Lead Developer",
-      specialty: "Full Stack Development",
-      description: "Expert in React, Node.js, and smart contract development",
-      image: "AS"
+      category: "AI & Analytics",
+      technologies: ["LLM Integration", "Sentiment Analysis", "Real-time Metrics"]
     },
     {
-      name: "Neha Gupta",
-      role: "Smart Contract Lead",
-      specialty: "Solidity & Web3",
-      description: "Specialized in governance smart contracts and DeFi protocols",
-      image: "NG"
-    },
-    {
-      name: "Dr. Sandeep Verma",
-      role: "Policy Advisor",
-      specialty: "Government Relations",
-      description: "Former IAS officer with 20+ years in public administration",
-      image: "SV"
-    },
-    {
-      name: "Kavita Patel",
-      role: "Security Auditor",
-      specialty: "Cybersecurity",
-      description: "Certified ethical hacker and blockchain security specialist",
-      image: "KP"
+      category: "Blockchain",
+      technologies: ["Internet Computer", "Smart Contracts", "Decentralized Storage"]
     }
   ];
 
-  const achievements = [
-    { number: "50M+", label: "Transactions Processed", icon: Zap },
-    { number: "25+", label: "Government Partners", icon: Shield },
-    { number: "98.9%", label: "Uptime Reliability", icon: Target },
-    { number: "500K+", label: "Active Citizens", icon: Users }
+  const stats = [
+    { value: "4", label: "Rust Canisters", icon: Code },
+    { value: "1000+", label: "TPS Capacity", icon: TrendingUp },
+    { value: "99.9%", label: "Uptime", icon: Lock },
+    { value: "24/7", label: "Real-time Monitoring", icon: Globe }
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-b from-background to-civic-gray-50">
-      <div className="container mx-auto px-6">
-        {/* Header */}
+    <section className="py-24 bg-gradient-trust">
+      <div className="container mx-auto px-4">
+        {/* Project Vision */}
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
@@ -125,178 +104,199 @@ export const AboutSection = () => {
           transition={{ duration: 0.8 }}
           viewport={{ once: true }}
         >
-          <h2 className="fluid-text-4xl font-bold mb-6 text-display">
-            About CivicLedger
-          </h2>
-          <p className="fluid-text-lg text-civic-slate max-w-3xl mx-auto leading-relaxed">
-            We're building the future of governance through blockchain technology, 
-            creating transparent, accountable, and citizen-centric government operations.
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">About CivicLedger</h2>
+          <p className="text-xl text-civic-slate max-w-4xl mx-auto leading-relaxed">
+            CivicLedger is a revolutionary decentralized public policy execution engine that transforms 
+            government policies into executable smart contracts on the Internet Computer Protocol. 
+            We're building the future of transparent, accountable governance.
           </p>
         </motion.div>
 
-        {/* Mission, Vision, Values */}
-        <div className="grid md:grid-cols-3 gap-8 mb-20">
-          {missionValues.map((item, index) => (
-            <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2, duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <FeatureCard
-                icon={item.icon}
-                title={item.title}
-                description={item.description}
-                variant="glass"
-                glowing
-              />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Platform Features */}
-        <motion.div
-          className="mb-20"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <h3 className="fluid-text-3xl font-bold text-center mb-12">
-            Platform Capabilities
-          </h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {platformFeatures.map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                <FeatureCard
-                  icon={feature.icon}
-                  title={feature.title}
-                  description={feature.description}
-                  variant="elevated"
-                />
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Achievements */}
-        <motion.div
-          className="mb-20 py-12 bg-gradient-civic rounded-2xl text-white"
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <h3 className="fluid-text-3xl font-bold text-center mb-12">
-            Platform Impact
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {achievements.map((achievement, index) => (
-              <motion.div
-                key={achievement.label}
-                className="text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.6 }}
-                viewport={{ once: true }}
-              >
-                <achievement.icon className="w-8 h-8 mx-auto mb-3 opacity-80" />
-                <div className="fluid-text-3xl font-bold mb-2 text-mono">
-                  {achievement.number}
-                </div>
-                <div className="text-sm opacity-90">{achievement.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Team */}
+        {/* Mission Statement */}
         <motion.div
           className="mb-16"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
           viewport={{ once: true }}
         >
-          <h3 className="fluid-text-3xl font-bold text-center mb-12">
-            Our Team
-          </h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {teamMembers.map((member, index) => (
+          <GlassCard variant="executive" className="p-8 text-center">
+            <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
+            <p className="text-lg text-civic-slate leading-relaxed">
+              To democratize governance by providing citizens with real-time visibility into policy execution, 
+              enabling direct participation in decision-making, and ensuring every rupee is accounted for 
+              through blockchain transparency.
+            </p>
+          </GlassCard>
+        </motion.div>
+
+        {/* Key Features */}
+        <motion.div
+          className="mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          viewport={{ once: true }}
+        >
+          <h3 className="text-3xl font-bold text-center mb-8">Key Features</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature, index) => (
               <motion.div
-                key={member.name}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
+                key={feature.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <EnhancedCard variant="glass" className="text-center h-full">
-                  <div className="space-y-4">
-                    <div className="w-20 h-20 mx-auto bg-gradient-civic rounded-full flex items-center justify-center text-white font-bold text-xl">
-                      {member.image}
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-lg">{member.name}</h4>
-                      <p className="text-civic-blue font-medium">{member.role}</p>
-                      <p className="text-sm text-civic-gold">{member.specialty}</p>
-                    </div>
-                    <p className="text-sm text-civic-slate">{member.description}</p>
-                    <Button variant="ghost" size="sm" className="p-2">
-                      <Linkedin className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </EnhancedCard>
+                <GlassCard variant="luxury" className="p-6 text-center h-full" hoverable>
+                  <feature.icon className="w-12 h-12 mx-auto mb-4 text-civic-blue" />
+                  <h4 className="text-lg font-semibold mb-2">{feature.title}</h4>
+                  <p className="text-sm text-civic-slate">{feature.description}</p>
+                </GlassCard>
               </motion.div>
             ))}
           </div>
         </motion.div>
 
-        {/* Call to Action */}
+        {/* Technology Stack */}
+        <motion.div
+          className="mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <h3 className="text-3xl font-bold text-center mb-8">Technology Stack</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {techStack.map((stack, index) => (
+              <motion.div
+                key={stack.category}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <GlassCard variant="power" className="p-6 h-full">
+                  <h4 className="text-lg font-semibold mb-4 text-white">{stack.category}</h4>
+                  <div className="space-y-2">
+                    {stack.technologies.map((tech) => (
+                      <div key={tech} className="text-sm text-white/80 bg-white/10 px-3 py-1 rounded-full inline-block mr-2 mb-2">
+                        {tech}
+                      </div>
+                    ))}
+                  </div>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Team Members */}
+        <motion.div
+          className="mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          viewport={{ once: true }}
+        >
+          <h3 className="text-3xl font-bold text-center mb-8">Our Team</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {teamMembers.map((member, index) => (
+              <motion.div
+                key={member.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <GlassCard variant="executive" className="p-6 text-center h-full" hoverable>
+                  <div className="text-4xl mb-4">{member.avatar}</div>
+                  <h4 className="text-lg font-semibold mb-2">{member.name}</h4>
+                  <p className="text-sm text-civic-blue mb-2">{member.role}</p>
+                  <p className="text-xs text-civic-slate">{member.expertise}</p>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Stats */}
+        <motion.div
+          className="mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
+          viewport={{ once: true }}
+        >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <GlassCard variant="luxury" className="p-6 text-center">
+                  <stat.icon className="w-8 h-8 mx-auto mb-2 text-civic-gold" />
+                  <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
+                  <div className="text-sm text-white/80">{stat.label}</div>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Quick Links */}
         <motion.div
           className="text-center"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, delay: 1.2 }}
           viewport={{ once: true }}
         >
-          <EnhancedCard variant="outlined" className="p-12 max-w-4xl mx-auto">
-            <div className="space-y-6">
-              <h3 className="fluid-text-3xl font-bold">
-                Join the Governance Revolution
-              </h3>
-              <p className="fluid-text-lg text-civic-slate max-w-2xl mx-auto">
-                Experience transparent, accountable governance powered by blockchain technology. 
-                Start tracking policies, participating in decisions, and holding institutions accountable.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" variant="civic">
-                  <Link to="/citizen">
-                    <Users className="w-5 h-5 mr-2" />
-                    Citizen Portal
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/dashboard">
-                    <BookOpen className="w-5 h-5 mr-2" />
-                    Explore Platform
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="ghost">
-                  <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-                    <Github className="w-5 h-5 mr-2" />
-                    View Source
-                  </a>
-                </Button>
-              </div>
-            </div>
-          </EnhancedCard>
+          <h3 className="text-2xl font-bold mb-6">Quick Links</h3>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button variant="executive" size="lg" className="flex items-center gap-2">
+              <Github className="w-5 h-5" />
+              GitHub Repository
+            </Button>
+            <Button variant="executive" size="lg" className="flex items-center gap-2">
+              <ExternalLink className="w-5 h-5" />
+              Documentation
+            </Button>
+            <Button variant="executive" size="lg" className="flex items-center gap-2">
+              <Code className="w-5 h-5" />
+              ICP Canister
+            </Button>
+            <Button variant="executive" size="lg" className="flex items-center gap-2">
+              <Mail className="w-5 h-5" />
+              Contact Us
+            </Button>
+          </div>
+        </motion.div>
+
+        {/* Version Info */}
+        <motion.div
+          className="mt-12 text-center"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1.4 }}
+          viewport={{ once: true }}
+        >
+          <div className="flex items-center justify-center gap-4 text-sm text-civic-slate">
+            <span>Version 1.0.0</span>
+            <span>•</span>
+            <span>Built with ❤️ for WCHL25</span>
+            <span>•</span>
+            <span>Powered by Internet Computer</span>
+          </div>
+          <div className="mt-4">
+            <Award className="w-6 h-6 mx-auto text-civic-gold" />
+            <p className="text-xs text-civic-slate mt-2">
+              Winner of WCHL25 Hackathon - Best Governance Solution
+            </p>
+          </div>
         </motion.div>
       </div>
     </section>

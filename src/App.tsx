@@ -17,6 +17,8 @@ import { PolicyMaker } from "./pages/PolicyMaker";
 import { AuditorPanel } from "./pages/AuditorPanel";
 import { ContractorView } from "./pages/ContractorView";
 import { CitizenReport } from "./pages/CitizenReport";
+import MockDashboard from "./components/dashboard/MockDashboard";
+import RealTimeDashboard from "./components/dashboard/RealTimeDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +69,8 @@ function AppContent() {
             <Route path="/auditor" element={<AuditorPanel />} />
             <Route path="/contractor" element={<ContractorView />} />
             <Route path="/report" element={<CitizenReport />} />
+            <Route path="/mock-dashboard" element={<MockDashboard />} />
+            <Route path="/real-time-dashboard" element={<RealTimeDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
