@@ -140,7 +140,7 @@ export const Home = () => {
         <div className="absolute inset-0 bg-gradient-hero"></div>
         <div className="absolute inset-0 bg-gradient-trust opacity-60"></div>
         
-        <div className="relative container mx-auto px-6">
+        <div className="relative container mx-auto px-4 sm:px-6 max-w-7xl">
           <motion.div
             className="text-center max-w-6xl mx-auto"
             initial={{ opacity: 0, y: 40 }}
@@ -179,33 +179,33 @@ export const Home = () => {
             </motion.p>
 
             <motion.div
-              className="flex flex-col sm:flex-row gap-6 justify-center mb-16"
+              className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-16"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9, duration: 0.8 }}
             >
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link to="/dashboard">
-                  <Button size="xl" variant="executive" className="px-10 h-14 shadow-executive hover:shadow-luxury font-bold text-lg">
-                    <BarChart3 className="w-6 h-6 mr-3" />
-                    Explore Dashboard
+                  <Button size="xl" variant="executive" className="px-6 sm:px-10 h-12 sm:h-14 shadow-executive hover:shadow-luxury font-bold text-base sm:text-lg">
+                    <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+                    <span className="whitespace-nowrap">Explore Dashboard</span>
                   </Button>
                 </Link>
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link to="/citizen">
-                  <Button size="xl" variant="executive" className="px-10 h-14 shadow-executive hover:shadow-luxury font-bold text-lg">
-                    <Users className="w-6 h-6 mr-3" />
-                    Citizen Portal
+                  <Button size="xl" variant="executive" className="px-6 sm:px-10 h-12 sm:h-14 shadow-executive hover:shadow-luxury font-bold text-base sm:text-lg">
+                    <Users className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+                    <span className="whitespace-nowrap">Citizen Portal</span>
                   </Button>
                 </Link>
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <EnhancedReportModal 
                   trigger={
-                    <Button size="xl" variant="executive" className="px-10 h-14 shadow-executive hover:shadow-luxury font-bold text-lg">
-                      <FileText className="w-6 h-6 mr-3" />
-                      Submit Report
+                    <Button size="xl" variant="executive" className="px-6 sm:px-10 h-12 sm:h-14 shadow-executive hover:shadow-luxury font-bold text-base sm:text-lg">
+                      <FileText className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+                      <span className="whitespace-nowrap">Submit Report</span>
                     </Button>
                   }
                 />
@@ -214,7 +214,7 @@ export const Home = () => {
 
             {/* Enhanced Search Interface */}
             <motion.div
-              className="flex justify-center"
+              className="flex justify-center px-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.0, duration: 0.8 }}

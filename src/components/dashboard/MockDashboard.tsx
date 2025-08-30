@@ -4,18 +4,44 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  smartPolicyService, 
-  complaintHandlerService, 
-  daoManagerService, 
-  fundTrackerService,
-  formatBigInt,
-  formatTimestamp,
-  getPolicyStatusText,
-  getComplaintPriorityText,
-  getComplaintStatusText
-} from '@/lib/icpService';
-import { Policy, Complaint, Proposal, FundTransaction } from '@/lib/icpService';
+import { icpService, Policy } from '@/lib/icpService';
+
+// Mock data types for backward compatibility
+interface Complaint {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  priority: string;
+  status: string;
+  district: string;
+  created_at: bigint;
+}
+
+interface Proposal {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  proposer: string;
+  created_at: bigint;
+  status: string;
+  yes_votes: number;
+  no_votes: number;
+  total_votes: number;
+}
+
+interface FundTransaction {
+  id: string;
+  policy_id: string;
+  transaction_type: string;
+  amount: bigint;
+  from_address: string;
+  to_address: string;
+  timestamp: bigint;
+  status: string;
+  transaction_hash: string;
+}
 
 export default function MockDashboard() {
   const [policies, setPolicies] = useState<Policy[]>([]);
@@ -31,17 +57,90 @@ export default function MockDashboard() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [policiesData, complaintsData, proposalsData, transactionsData] = await Promise.all([
-        smartPolicyService.getAllPolicies(),
-        complaintHandlerService.getAllComplaints(),
-        daoManagerService.getAllProposals(),
-        fundTrackerService.getRecentTransactions(10)
-      ]);
       
+      // Load policies using the new service
+      const policiesData = await icpService.mockGetAllPolicies();
       setPolicies(policiesData);
-      setComplaints(complaintsData);
-      setProposals(proposalsData);
-      setTransactions(transactionsData);
+      
+      // Mock data for other services
+      const mockComplaints: Complaint[] = [
+        {
+          id: 'COMP_001',
+          title: 'Road Maintenance Issue',
+          description: 'Potholes on main road need immediate attention',
+          category: 'Infrastructure',
+          priority: 'High',
+          status: 'Under Review',
+          district: 'Mumbai',
+          created_at: BigInt(Date.now() * 1000000),
+        },
+        {
+          id: 'COMP_002',
+          title: 'Water Supply Problem',
+          description: 'Irregular water supply in residential area',
+          category: 'Utilities',
+          priority: 'Medium',
+          status: 'Investigation',
+          district: 'Bangalore',
+          created_at: BigInt(Date.now() * 1000000),
+        },
+      ];
+      
+      const mockProposals: Proposal[] = [
+        {
+          id: 'PROP_001',
+          title: 'Digital Infrastructure Upgrade',
+          description: 'Proposal to upgrade digital infrastructure across the city',
+          category: 'Technology',
+          proposer: 'Tech Committee',
+          created_at: BigInt(Date.now() * 1000000),
+          status: 'Active',
+          yes_votes: 45,
+          no_votes: 12,
+          total_votes: 57,
+        },
+        {
+          id: 'PROP_002',
+          title: 'Green Energy Initiative',
+          description: 'Implement solar panels in government buildings',
+          category: 'Environment',
+          proposer: 'Environmental Council',
+          created_at: BigInt(Date.now() * 1000000),
+          status: 'Active',
+          yes_votes: 38,
+          no_votes: 8,
+          total_votes: 46,
+        },
+      ];
+      
+      const mockTransactions: FundTransaction[] = [
+        {
+          id: 'TXN_001',
+          policy_id: 'POLICY_001',
+          transaction_type: 'Release',
+          amount: BigInt(2500000000),
+          from_address: 'government_treasury',
+          to_address: 'contractor_wallet',
+          timestamp: BigInt(Date.now() * 1000000),
+          status: 'Completed',
+          transaction_hash: '0x1234567890abcdef...',
+        },
+        {
+          id: 'TXN_002',
+          policy_id: 'POLICY_002',
+          transaction_type: 'Release',
+          amount: BigInt(1500000000),
+          from_address: 'government_treasury',
+          to_address: 'tech_solutions_wallet',
+          timestamp: BigInt(Date.now() * 1000000),
+          status: 'Completed',
+          transaction_hash: '0xabcdef1234567890...',
+        },
+      ];
+      
+      setComplaints(mockComplaints);
+      setProposals(mockProposals);
+      setTransactions(mockTransactions);
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
@@ -51,7 +150,7 @@ export default function MockDashboard() {
 
   const handleActivatePolicy = async (policyId: string) => {
     try {
-      await smartPolicyService.activatePolicy(policyId);
+      await icpService.activatePolicy(policyId);
       await loadData(); // Reload data
     } catch (error) {
       console.error('Failed to activate policy:', error);
@@ -61,11 +160,31 @@ export default function MockDashboard() {
   const handleReleaseFunds = async (policyId: string) => {
     try {
       const amount = BigInt(1000000000); // 1 crore
-      await smartPolicyService.releaseFunds(policyId, amount, "contractor_wallet");
+      await icpService.releaseFunds(policyId, amount, "contractor_wallet");
       await loadData(); // Reload data
     } catch (error) {
       console.error('Failed to release funds:', error);
     }
+  };
+
+  const formatBigInt = (value: bigint): string => {
+    return (Number(value) / 100000000).toFixed(2);
+  };
+
+  const formatTimestamp = (timestamp: bigint): string => {
+    return new Date(Number(timestamp) / 1000000).toLocaleString();
+  };
+
+  const getPolicyStatusText = (status: string): string => {
+    return status;
+  };
+
+  const getComplaintPriorityText = (priority: string): string => {
+    return priority;
+  };
+
+  const getComplaintStatusText = (status: string): string => {
+    return status;
   };
 
   if (loading) {

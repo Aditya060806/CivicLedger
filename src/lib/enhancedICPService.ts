@@ -1,8 +1,6 @@
 import { Actor, HttpAgent, Identity } from '@dfinity/agent';
 import { AuthClient } from '@dfinity/auth-client';
 import { Principal } from '@dfinity/principal';
-import { Ed25519KeyIdentity } from '@dfinity/identity';
-import { Secp256k1KeyIdentity } from '@dfinity/identity-secp256k1';
 
 // WCHL25 CivicLedger Enhanced Canister IDs
 const CANISTER_IDS = {
@@ -283,7 +281,7 @@ export interface SmartPolicyService {
 }
 
 // Enhanced ICP Service Class with Advanced Features
-export class ICPService {
+export class EnhancedICPService {
   private agent: HttpAgent | null = null;
   private authClient: AuthClient | null = null;
   private smartPolicyActor: Actor | null = null;
@@ -585,147 +583,6 @@ export class ICPService {
     }
   }
 
-  async activatePolicy(policyId: string): Promise<{ success: boolean; error?: string; blockchainData?: any }> {
-    if (!this.smartPolicyActor) {
-      return { success: false, error: 'Not authenticated' };
-    }
-
-    try {
-      console.log('🎯 WCHL25: Activating policy with cross-chain verification...');
-
-      const result = await (this.smartPolicyActor as any).activate_policy(policyId);
-
-      if ('Ok' in result) {
-        // Cross-chain verification
-        const crossChainVerification = await this.crossChainVerify(policyId);
-        
-        // Real-time monitoring setup
-        const realTimeMonitoring = await this.setupRealTimeMonitoring(policyId);
-
-        return { 
-          success: true,
-          blockchainData: {
-            crossChainVerification,
-            realTimeMonitoring
-          }
-        };
-      } else {
-        return { success: false, error: result.Err };
-      }
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to activate policy:', error);
-      return { success: false, error: 'Failed to activate policy' };
-    }
-  }
-
-  async releaseFunds(
-    policyId: string,
-    amount: bigint,
-    toAddress: string
-  ): Promise<{ success: boolean; flowId?: string; error?: string; blockchainData?: any }> {
-    if (!this.smartPolicyActor) {
-      return { success: false, error: 'Not authenticated' };
-    }
-
-    try {
-      console.log('💰 WCHL25: Releasing funds with atomic swap and layer2 optimization...');
-
-      // Create atomic swap
-      const atomicSwap = await this.createAtomicSwap(policyId, amount, toAddress);
-      
-      // Apply layer2 optimization
-      const layer2Optimization = await this.applyLayer2Optimization(amount);
-
-      const result = await (this.smartPolicyActor as any).release_funds(policyId, amount, toAddress);
-
-      if ('Ok' in result) {
-        const flowId = result.Ok;
-        
-        // Quantum secure transaction
-        const quantumTransaction = await this.quantumSecureTransaction(policyId);
-        
-        // Sharding verification
-        const shardingVerification = await this.verifySharding(flowId);
-
-        console.log('✅ WCHL25: Funds released with advanced blockchain features');
-
-        return { 
-          success: true, 
-          flowId,
-          blockchainData: {
-            atomicSwap,
-            layer2Optimization,
-            quantumTransaction,
-            shardingVerification
-          }
-        };
-      } else {
-        return { success: false, error: result.Err };
-      }
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to release funds:', error);
-      return { success: false, error: 'Failed to release funds' };
-    }
-  }
-
-  // Enhanced Query Methods
-  async getAllPolicies(): Promise<Policy[]> {
-    if (!this.smartPolicyActor) {
-      return [];
-    }
-
-    try {
-      const policies = await (this.smartPolicyActor as any).get_all_policies();
-      
-      // Enhance with real-time blockchain data
-      const enhancedPolicies = await Promise.all(
-        policies.map(async (policy: Policy) => {
-          const blockchainData = await this.getBlockchainData(policy.id);
-          return {
-            ...policy,
-            blockchain_hash: blockchainData?.blockchainHash,
-            icp_transaction_id: blockchainData?.transactionId,
-            real_time_status: blockchainData?.realTimeStatus
-          };
-        })
-      );
-
-      return enhancedPolicies;
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to get policies:', error);
-      return [];
-    }
-  }
-
-  async getPolicy(policyId: string): Promise<Policy | null> {
-    if (!this.smartPolicyActor) {
-      return null;
-    }
-
-    try {
-      const result = await (this.smartPolicyActor as any).get_policy(policyId);
-      
-      if (typeof result === 'string') {
-        console.error('❌ WCHL25: Policy not found:', result);
-        return null;
-      }
-      
-      // Enhance with blockchain data
-      const blockchainData = await this.getBlockchainData(policyId);
-      const enhancedPolicy = {
-        ...result,
-        blockchain_hash: blockchainData?.blockchainHash,
-        icp_transaction_id: blockchainData?.transactionId,
-        real_time_status: blockchainData?.realTimeStatus
-      };
-      
-      return enhancedPolicy;
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to get policy:', error);
-      return null;
-    }
-  }
-
   // Advanced Blockchain Methods
   private async verifyBlockchainTransaction(transactionId: string): Promise<any> {
     try {
@@ -749,86 +606,6 @@ export class ICPService {
       return null;
     } catch (error) {
       console.error('❌ WCHL25: Failed to apply AI optimization:', error);
-      return null;
-    }
-  }
-
-  private async crossChainVerify(policyId: string): Promise<any> {
-    try {
-      if (this.smartPolicyActor) {
-        const result = await (this.smartPolicyActor as any).cross_chain_verify(policyId);
-        return result;
-      }
-      return null;
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to cross-chain verify:', error);
-      return null;
-    }
-  }
-
-  private async setupRealTimeMonitoring(policyId: string): Promise<any> {
-    try {
-      // Setup real-time monitoring for the policy
-      return { monitoringEnabled: true, policyId };
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to setup real-time monitoring:', error);
-      return null;
-    }
-  }
-
-  private async createAtomicSwap(policyId: string, amount: bigint, toAddress: string): Promise<any> {
-    try {
-      // Create atomic swap for secure fund transfer
-      return { 
-        swapId: `SWAP_${Date.now()}`,
-        policyId,
-        amount: amount.toString(),
-        toAddress,
-        status: 'pending'
-      };
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to create atomic swap:', error);
-      return null;
-    }
-  }
-
-  private async applyLayer2Optimization(amount: bigint): Promise<any> {
-    try {
-      // Apply layer2 optimization for faster transactions
-      return { 
-        optimizationApplied: true,
-        estimatedGasSavings: '50%',
-        transactionSpeed: '10x'
-      };
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to apply layer2 optimization:', error);
-      return null;
-    }
-  }
-
-  private async quantumSecureTransaction(policyId: string): Promise<any> {
-    try {
-      if (this.smartPolicyActor) {
-        const result = await (this.smartPolicyActor as any).quantum_secure_transaction(policyId);
-        return result;
-      }
-      return null;
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to create quantum secure transaction:', error);
-      return null;
-    }
-  }
-
-  private async verifySharding(flowId: string): Promise<any> {
-    try {
-      // Verify sharding for distributed processing
-      return { 
-        shardingVerified: true,
-        shardCount: 16,
-        verificationTime: Date.now()
-      };
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to verify sharding:', error);
       return null;
     }
   }
@@ -867,19 +644,6 @@ export class ICPService {
     return Math.abs(hash).toString(16);
   }
 
-  private async getBlockchainData(policyId: string): Promise<any> {
-    try {
-      return {
-        blockchainHash: this.generateBlockchainHash(policyId, 'data', BigInt(0)),
-        transactionId: `ICP_TX_${Date.now()}`,
-        realTimeStatus: 'active'
-      };
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to get blockchain data:', error);
-      return null;
-    }
-  }
-
   // WCHL25 Enhanced Methods
   async getWCHL25Metrics(): Promise<WCHL25Metrics | null> {
     if (!this.smartPolicyActor) {
@@ -905,32 +669,6 @@ export class ICPService {
       return enhancedMetrics;
     } catch (error) {
       console.error('❌ WCHL25: Failed to get WCHL25 metrics:', error);
-      return null;
-    }
-  }
-
-  async getIndiaHubRegistrations(): Promise<IndiaHubRegistration[]> {
-    if (!this.smartPolicyActor) {
-      return [];
-    }
-
-    try {
-      return await (this.smartPolicyActor as any).get_india_hub_registrations();
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to get India Hub registrations:', error);
-      return [];
-    }
-  }
-
-  // Utility Methods
-  async getPrincipal(): Promise<Principal | null> {
-    if (!this.authClient) return null;
-    
-    try {
-      const identity = this.authClient.getIdentity();
-      return identity.getPrincipal();
-    } catch (error) {
-      console.error('❌ WCHL25: Failed to get principal:', error);
       return null;
     }
   }
@@ -966,72 +704,6 @@ export class ICPService {
     };
   }
 
-  async mockGetAllPolicies(): Promise<Policy[]> {
-    // Return enhanced mock data for development
-    return [
-      {
-        id: 'POLICY_001',
-        title: 'PM Awas Yojana - Phase 3',
-        description: 'Housing for All scheme providing affordable housing to urban poor',
-        category: 'Housing',
-        fund_allocation: BigInt(5000000000),
-        fund_released: BigInt(2500000000),
-        beneficiaries: 1250,
-        status: PolicyStatus.Active,
-        created_at: BigInt(Date.now() * 1000000),
-        updated_at: BigInt(Date.now() * 1000000),
-        district: 'Mumbai',
-        contractor: 'ABC Construction Ltd',
-        eligibility_criteria: ['Below Poverty Line', 'Urban residence', 'No existing house'],
-        execution_conditions: ['House completion within 18 months', 'Quality standards compliance'],
-        smart_contract_code: '// WCHL25 Enhanced Smart Contract...',
-        blockchain_hash: '0x1234567890abcdef...',
-        icp_transaction_id: 'ICP_TX_001',
-        india_hub_registration: 'INDIA_HUB_001',
-        audit_trail: [],
-        ai_analysis_score: 0.92,
-        transparency_score: 0.95,
-        citizen_approval_rate: 0.88,
-        merkle_root: '0xmerkle123...',
-        proof_of_work: '0xpow456...',
-        consensus_achieved: true,
-        cross_chain_verification: ['Ethereum', 'Polygon', 'ICP'],
-        zero_knowledge_proof: '0xzkp789...',
-        quantum_resistant_signature: 'QS_abc123...',
-      },
-      {
-        id: 'POLICY_002',
-        title: 'Digital India Infrastructure',
-        description: 'Building digital infrastructure across rural areas',
-        category: 'Technology',
-        fund_allocation: BigInt(3000000000),
-        fund_released: BigInt(1500000000),
-        beneficiaries: 500,
-        status: PolicyStatus.Active,
-        created_at: BigInt(Date.now() * 1000000),
-        updated_at: BigInt(Date.now() * 1000000),
-        district: 'Bangalore',
-        contractor: 'Tech Solutions Inc',
-        eligibility_criteria: ['Rural areas', 'No internet connectivity'],
-        execution_conditions: ['Fiber optic installation', 'WiFi hotspot setup'],
-        smart_contract_code: '// WCHL25 Enhanced Smart Contract...',
-        blockchain_hash: '0xabcdef1234567890...',
-        icp_transaction_id: 'ICP_TX_002',
-        india_hub_registration: 'INDIA_HUB_002',
-        audit_trail: [],
-        ai_analysis_score: 0.89,
-        transparency_score: 0.93,
-        citizen_approval_rate: 0.91,
-        merkle_root: '0xmerkle456...',
-        proof_of_work: '0xpow789...',
-        consensus_achieved: true,
-        cross_chain_verification: ['ICP', 'Solana', 'Avalanche'],
-        zero_knowledge_proof: '0xzkpdef...',
-        quantum_resistant_signature: 'QS_def456...',
-      },
-    ];
-  }
-
   async mockGetWCHL25Metrics(): Promise<WCHL25Metrics> {
     return {
       total_policies_created: 15,
@@ -1056,4 +728,4 @@ export class ICPService {
 }
 
 // Export singleton instance
-export const icpService = new ICPService(); 
+export const enhancedICPService = new EnhancedICPService();

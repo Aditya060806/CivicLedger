@@ -1250,6 +1250,75 @@ All colors MUST be HSL.
     backface-visibility: hidden;
   }
 
+  /* Gradient Utility Classes */
+  .bg-gradient-civic {
+    background: var(--gradient-civic);
+  }
+
+  .bg-gradient-civic-alt {
+    background: var(--gradient-civic-alt);
+  }
+
+  .bg-gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .bg-gradient-cards {
+    background: var(--gradient-cards);
+  }
+
+  .bg-gradient-glass {
+    background: var(--gradient-glass);
+  }
+
+  .bg-gradient-glass-blue {
+    background: var(--gradient-glass-blue);
+  }
+
+  .bg-gradient-fund-flow {
+    background: var(--gradient-fund-flow);
+  }
+
+  .bg-gradient-pastel {
+    background: var(--gradient-pastel);
+  }
+
+  .bg-gradient-success {
+    background: var(--gradient-success);
+  }
+
+  .bg-gradient-warning {
+    background: var(--gradient-warning);
+  }
+
+  .bg-gradient-trust {
+    background: var(--gradient-trust);
+  }
+
+  .bg-gradient-interactive {
+    background: var(--gradient-interactive);
+  }
+
+  .bg-gradient-premium {
+    background: var(--gradient-premium);
+  }
+
+  .bg-gradient-modern {
+    background: var(--gradient-modern);
+  }
+
+  .bg-gradient-executive {
+    background: var(--gradient-executive);
+  }
+
+  .bg-gradient-luxury {
+    background: var(--gradient-luxury);
+  }
+
+  .bg-gradient-power {
+    background: var(--gradient-power);
+  }
+
   /* Dark Mode Overrides */
   @media (prefers-color-scheme: dark) {
     .auto-dark {

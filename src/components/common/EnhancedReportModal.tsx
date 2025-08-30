@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,7 +43,9 @@ import {
   CheckCircle,
   AlertTriangle,
   Zap,
-  Shield
+  Shield,
+  X,
+  Loader2
 } from "lucide-react";
 
 const reportSchema = z.object({
@@ -67,7 +69,14 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
   const [aiAnalyzing, setAiAnalyzing] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionProgress, setSubmissionProgress] = useState(0);
   const { toast } = useToast();
+  
+  // File input refs
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const audioInputRef = useRef<HTMLInputElement>(null);
+  const generalFileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<ReportForm>({
     resolver: zodResolver(reportSchema),
@@ -116,14 +125,66 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     setUploadedFiles(prev => [...prev, ...files]);
+    
+    // Update form data
+    form.setValue('media', [...(form.getValues('media') || []), ...files]);
+    
+    toast({
+      title: "Files Uploaded",
+      description: `${files.length} file(s) uploaded successfully`,
+    });
+  };
+
+  const handlePhotoUpload = () => {
+    photoInputRef.current?.click();
+  };
+
+  const handleAudioUpload = () => {
+    audioInputRef.current?.click();
+  };
+
+  const handleGeneralUpload = () => {
+    generalFileInputRef.current?.click();
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+    const currentMedia = form.getValues('media') || [];
+    form.setValue('media', currentMedia.filter((_, i) => i !== index));
+  };
+
+  const simulateBlockchainSubmission = async () => {
+    setIsSubmitting(true);
+    setSubmissionProgress(0);
+    
+    // Simulate blockchain submission steps
+    const steps = [
+      { progress: 20, message: "Encrypting data..." },
+      { progress: 40, message: "Generating blockchain hash..." },
+      { progress: 60, message: "Submitting to ICP network..." },
+      { progress: 80, message: "Confirming transaction..." },
+      { progress: 100, message: "Transaction confirmed!" }
+    ];
+    
+    for (const step of steps) {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setSubmissionProgress(step.progress);
+    }
+    
+    setIsSubmitting(false);
   };
 
   const onSubmit = async (data: ReportForm) => {
     try {
-      // Simulate smart contract logging
+      await simulateBlockchainSubmission();
+      
+      // Generate a blockchain transaction ID
+      const txId = "0x" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      const reportId = "REP-" + Date.now().toString().slice(-6);
+      
       toast({
         title: "Report Submitted Successfully!",
-        description: "Your report has been logged to the blockchain and assigned ID: #REP-2024-001",
+        description: `Your report has been logged to the blockchain. Transaction ID: ${txId}, Report ID: ${reportId}`,
       });
       
       setOpen(false);
@@ -131,12 +192,14 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
       setStep(1);
       setUploadedFiles([]);
       setAiSuggestion(null);
+      setSubmissionProgress(0);
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to submit report. Please try again.",
         variant: "destructive",
       });
+      setIsSubmitting(false);
     }
   };
 
@@ -173,84 +236,23 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
 
             <FormField
               control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Detailed Description</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Provide detailed information about the issue"
-                      className="min-h-[120px]"
-                      {...field}
-                      onBlur={() => {
-                        if (field.value.length > 20) {
-                          analyzeWithAI(field.value);
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {aiAnalyzing && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 p-3 bg-civic-blue/10 rounded-lg"
-              >
-                <Bot className="w-4 h-4 text-civic-blue animate-pulse" />
-                <span className="text-sm">AI analyzing your report...</span>
-              </motion.div>
-            )}
-
-            {aiSuggestion && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-3 bg-civic-green/10 border border-civic-green/20 rounded-lg"
-              >
-                <div className="flex items-start gap-2">
-                  <Bot className="w-4 h-4 text-civic-green mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-civic-green">AI Suggestion</p>
-                    <p className="text-sm text-muted-foreground">{aiSuggestion}</p>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </motion.div>
-        );
-
-      case 2:
-        return (
-          <motion.div
-            variants={stepVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="space-y-4"
-          >
-            <FormField
-              control={form.control}
               name="category"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select issue category" />
+                        <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.value} value={cat.value}>
-                          <div className="flex items-center gap-2">
-                            <span>{cat.icon}</span>
-                            <span>{cat.label}</span>
-                          </div>
+                      {categories.map((category) => (
+                        <SelectItem key={category.value} value={category.value}>
+                          <span className="flex items-center gap-2">
+                            <span>{category.icon}</span>
+                            {category.label}
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -266,7 +268,7 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Priority Level</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select priority level" />
@@ -275,10 +277,10 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
                     <SelectContent>
                       {priorities.map((priority) => (
                         <SelectItem key={priority.value} value={priority.value}>
-                          <div className="flex items-center gap-2">
-                            <div className={`w-3 h-3 rounded-full ${priority.color}`} />
-                            <span>{priority.label}</span>
-                          </div>
+                          <span className="flex items-center gap-2">
+                            <div className={`w-3 h-3 rounded-full ${priority.color}`}></div>
+                            {priority.label}
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -287,16 +289,70 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
                 </FormItem>
               )}
             />
+          </motion.div>
+        );
+
+      case 2:
+        return (
+          <motion.div
+            variants={stepVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="space-y-4"
+          >
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Detailed Description</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Provide detailed information about the issue..."
+                      className="min-h-[120px]"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        if (e.target.value.length > 50) {
+                          analyzeWithAI(e.target.value);
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {aiAnalyzing && (
+              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                <span className="text-sm text-blue-600">AI analyzing your report...</span>
+              </div>
+            )}
+
+            {aiSuggestion && !aiAnalyzing && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-start gap-2">
+                  <Bot className="w-4 h-4 text-green-600 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-medium text-green-800">AI Suggestion</p>
+                    <p className="text-sm text-green-700">{aiSuggestion}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <FormField
               control={form.control}
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location (Optional)</FormLabel>
+                  <FormLabel>Location</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input placeholder="Enter location or address" className="pl-10" {...field} />
                     </div>
                   </FormControl>
@@ -325,22 +381,58 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
                     Drop files here or click to upload
                   </p>
                   <div className="flex gap-2 mt-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      size="sm"
+                      onClick={handlePhotoUpload}
+                    >
                       <Camera className="w-4 h-4 mr-1" />
                       Photo
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleAudioUpload}
+                    >
                       <Mic className="w-4 h-4 mr-1" />
                       Audio
                     </Button>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*,audio/*,video/*"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleGeneralUpload}
+                    >
+                      <FileText className="w-4 h-4 mr-1" />
+                      Files
+                    </Button>
                   </div>
+                  
+                  {/* Hidden file inputs */}
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <input
+                    ref={audioInputRef}
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <input
+                    ref={generalFileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*,audio/*,video/*,.pdf,.doc,.docx"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
                 </div>
               </div>
             </div>
@@ -353,8 +445,26 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
                     <FileText className="w-4 h-4" />
                     <span className="text-sm flex-1">{file.name}</span>
                     <Badge variant="secondary">{(file.size / 1024).toFixed(1)} KB</Badge>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFile(index)}
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {isSubmitting && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span>Submitting to Blockchain...</span>
+                  <span>{submissionProgress}%</span>
+                </div>
+                <Progress value={submissionProgress} className="w-full" />
               </div>
             )}
 
@@ -438,6 +548,7 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
                   type="button"
                   variant="outline"
                   onClick={() => setStep(step - 1)}
+                  disabled={isSubmitting}
                 >
                   Previous
                 </Button>
@@ -449,13 +560,27 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
                     type="button"
                     onClick={() => setStep(step + 1)}
                     className="bg-gradient-civic"
+                    disabled={isSubmitting}
                   >
                     Next
                   </Button>
                 ) : (
-                  <Button type="submit" className="bg-gradient-civic">
-                    <Zap className="w-4 h-4 mr-2" />
-                    Submit to Blockchain
+                  <Button 
+                    type="submit" 
+                    className="bg-gradient-civic"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-4 h-4 mr-2" />
+                        Submit to Blockchain
+                      </>
+                    )}
                   </Button>
                 )}
               </div>
