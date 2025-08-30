@@ -8,6 +8,7 @@ import { ThemeProvider } from "next-themes";
 import { PageLoader } from "@/components/common/PageLoader";
 import { Layout } from "@/components/layout/Layout";
 import { FloatingReportButton } from "@/components/common/FloatingReportButton";
+import { AIChatbot } from "@/components/common/AIChatbot";
 import { AnimatePresence } from "framer-motion";
 import { Home } from "./pages/Home";
 import { Dashboard } from "./pages/Dashboard";
@@ -17,9 +18,9 @@ import { PolicyMaker } from "./pages/PolicyMaker";
 import { AuditorPanel } from "./pages/AuditorPanel";
 import { ContractorView } from "./pages/ContractorView";
 import { CitizenReport } from "./pages/CitizenReport";
-import MockDashboard from "./components/dashboard/MockDashboard";
-import RealTimeDashboard from "./components/dashboard/RealTimeDashboard";
+
 import { WCHL25Dashboard } from "./components/dashboard/WCHL25Dashboard";
+import EnhancedWCHL25Dashboard from "./components/dashboard/EnhancedWCHL25Dashboard";
 import NotFound from "./pages/NotFound";
 import { enhancedICPService } from "./lib/enhancedICPService";
 
@@ -87,14 +88,15 @@ function AppContent() {
             <Route path="/auditor" element={<AuditorPanel />} />
             <Route path="/contractor" element={<ContractorView />} />
             <Route path="/report" element={<CitizenReport />} />
-            <Route path="/mock-dashboard" element={<MockDashboard />} />
-            <Route path="/real-time-dashboard" element={<RealTimeDashboard />} />
+            
             <Route path="/wchl25-dashboard" element={<WCHL25Dashboard />} />
+            <Route path="/enhanced-wchl25-dashboard" element={<EnhancedWCHL25Dashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>
         <FloatingReportButton />
+        <AIChatbot />
       </Layout>
     </>
   );

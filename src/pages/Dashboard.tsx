@@ -4,11 +4,9 @@ import { Layout } from "@/components/layout/Layout";
 import { GlassCard } from "@/components/common/GlassCard";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { AnalyticsPanel } from "@/components/common/AnalyticsPanel";
-import { PolicyExecutionFlow } from "@/components/dashboard/PolicyExecutionFlow";
-import { DistrictIntelligenceDashboard } from "@/components/dashboard/DistrictIntelligenceDashboard";
-import { RoleAwareSystem } from "@/components/dashboard/RoleAwareSystem";
-import { EnhancedMapInterface } from "@/components/dashboard/EnhancedMapInterface";
-import { ImpactGraphs } from "@/components/dashboard/ImpactGraphs";
+
+
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -278,7 +276,7 @@ export const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <PolicyExecutionFlow />
+          
         </motion.div>
 
         {/* Role-Aware System */}
@@ -288,7 +286,7 @@ export const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
         >
-          <RoleAwareSystem />
+          
         </motion.div>
 
         {/* District Intelligence Dashboard */}
@@ -298,7 +296,7 @@ export const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <DistrictIntelligenceDashboard />
+          
         </motion.div>
 
         {/* Enhanced Map Interface */}
@@ -308,7 +306,7 @@ export const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
         >
-          <EnhancedMapInterface />
+          
         </motion.div>
 
         {/* Impact Graphs */}
@@ -318,7 +316,7 @@ export const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <ImpactGraphs />
+          
         </motion.div>
 
         {/* Analytics Panel */}

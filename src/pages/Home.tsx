@@ -13,7 +13,7 @@ import { Footer } from "@/components/common/Footer";
 import { AboutSection } from "@/components/common/AboutSection";
 import { AdvancedSearchInterface } from "@/components/common/AdvancedSearchInterface";
 import { RealTimeAnalyticsDashboard } from "@/components/common/RealTimeAnalyticsDashboard";
-import { EnhancedAccordion, sampleAccordionItems } from "@/components/common/EnhancedInteractiveElements";
+
 
 import { 
   Shield, 
@@ -516,7 +516,7 @@ export const Home = () => {
                 Explore the core mechanisms that power transparent governance
               </p>
             </div>
-            <EnhancedAccordion items={sampleAccordionItems} />
+
           </motion.div>
         </div>
       </section>
