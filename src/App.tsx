@@ -21,6 +21,8 @@ import { CitizenReport } from "./pages/CitizenReport";
 
 import { WCHL25Dashboard } from "./components/dashboard/WCHL25Dashboard";
 import EnhancedWCHL25Dashboard from "./components/dashboard/EnhancedWCHL25Dashboard";
+import { MockDashboard } from "./pages/MockDashboard";
+import { RealTimeDashboard } from "./pages/RealTimeDashboard";
 import NotFound from "./pages/NotFound";
 import { enhancedICPService } from "./lib/enhancedICPService";
 
@@ -36,8 +38,7 @@ function AppContent() {
     const initializeEnhancedICP = async () => {
       try {
         console.log("🚀 Initializing Enhanced ICP Service...");
-        await enhancedICPService.initializeBlockchainConnection();
-        await enhancedICPService.setupBlockchainMonitoring();
+        // Service is auto-initialized in constructor
         console.log("✅ Enhanced ICP Service initialized successfully");
       } catch (error) {
         console.error("❌ Failed to initialize Enhanced ICP Service:", error);
@@ -91,6 +92,8 @@ function AppContent() {
             
             <Route path="/wchl25-dashboard" element={<WCHL25Dashboard />} />
             <Route path="/enhanced-wchl25-dashboard" element={<EnhancedWCHL25Dashboard />} />
+            <Route path="/mock-dashboard" element={<MockDashboard />} />
+            <Route path="/real-time-dashboard" element={<RealTimeDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

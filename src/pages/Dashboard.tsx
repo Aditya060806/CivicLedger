@@ -39,7 +39,7 @@ interface Scheme {
   fundReleased: number;
   beneficiaries: number;
   complaints: number;
-  status: "active" | "paused" | "under-review";
+  status: "active" | "paused" | "under-review" | "completed";
   lastUpdate: string;
 }
 
