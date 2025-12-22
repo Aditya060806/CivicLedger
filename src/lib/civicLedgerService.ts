@@ -1,286 +1,271 @@
-import { enhancedICPService, Policy, PolicyStatus } from './enhancedICPService';
+// Unified CivicLedger Service - Production Ready
+import { enhancedICPService } from './enhancedICPService';
+import { aiService } from './aiService';
 
-// Mock data for development and demos
-const MOCK_POLICIES: Policy[] = [
-  {
-    id: 'POL-001',
-    title: 'PM Awas Yojana - Phase 3',
-    description: 'Housing scheme for economically weaker sections',
-    category: 'Housing',
-    fund_allocation: BigInt(500000000),
-    fund_released: BigInt(250000000),
-    beneficiaries: 1250,
-    status: PolicyStatus.Active,
-    created_at: BigInt(1704067200000000000),
-    updated_at: BigInt(Date.now() * 1000000),
-    district: 'North Delhi',
-    contractor: 'Urban Infrastructure Ltd',
-    eligibility_criteria: ['Annual income < ₹3 Lakh', 'No existing house ownership'],
-    execution_conditions: ['KYC verified', 'Funds available'],
-    smart_contract_code: '',
-    blockchain_hash: '0xabc123...',
-    icp_transaction_id: 'ICP_TX_001',
-    audit_trail: [],
-    ai_analysis_score: 0.92,
-    transparency_score: 0.96,
-    citizen_approval_rate: 0.88,
-  },
-  {
-    id: 'POL-002',
-    title: 'Mid Day Meal Program',
-    description: 'Nutritious meals for school children',
-    category: 'Education',
-    fund_allocation: BigInt(300000000),
-    fund_released: BigInt(180000000),
-    beneficiaries: 5400,
-    status: PolicyStatus.Active,
-    created_at: BigInt(1704153600000000000),
-    updated_at: BigInt(Date.now() * 1000000),
-    district: 'South Delhi',
-    contractor: 'Food Services Corp',
-    eligibility_criteria: ['School going children', 'Age 6-14 years'],
-    execution_conditions: ['School registration', 'Food quality certification'],
-    smart_contract_code: '',
-    blockchain_hash: '0xdef456...',
-    icp_transaction_id: 'ICP_TX_002',
-    audit_trail: [],
-    ai_analysis_score: 0.89,
-    transparency_score: 0.94,
-    citizen_approval_rate: 0.91,
-  },
-  {
-    id: 'POL-003',
-    title: 'Digital Literacy Campaign',
-    description: 'Computer training for senior citizens',
-    category: 'Technology',
-    fund_allocation: BigInt(450000000),
-    fund_released: BigInt(80000000),
-    beneficiaries: 850,
-    status: PolicyStatus.Paused,
-    created_at: BigInt(1704240000000000000),
-    updated_at: BigInt(Date.now() * 1000000),
-    district: 'East Delhi',
-    contractor: 'TechEd Solutions',
-    eligibility_criteria: ['Age > 60 years', 'Basic education required'],
-    execution_conditions: ['Training center setup', 'Instructor availability'],
-    smart_contract_code: '',
-    blockchain_hash: '0xghi789...',
-    icp_transaction_id: 'ICP_TX_003',
-    audit_trail: [],
-    ai_analysis_score: 0.85,
-    transparency_score: 0.88,
-    citizen_approval_rate: 0.82,
-  },
-  {
-    id: 'POL-004',
-    title: 'Rural Road Development',
-    description: 'Infrastructure for rural connectivity',
-    category: 'Infrastructure',
-    fund_allocation: BigInt(400000000),
-    fund_released: BigInt(320000000),
-    beneficiaries: 2100,
-    status: PolicyStatus.UnderReview,
-    created_at: BigInt(1704326400000000000),
-    updated_at: BigInt(Date.now() * 1000000),
-    district: 'West Delhi',
-    contractor: 'Infrastructure Pro',
-    eligibility_criteria: ['Rural area identification', 'Population density check'],
-    execution_conditions: ['Land acquisition', 'Environmental clearance'],
-    smart_contract_code: '',
-    blockchain_hash: '0xjkl012...',
-    icp_transaction_id: 'ICP_TX_004',
-    audit_trail: [],
-    ai_analysis_score: 0.88,
-    transparency_score: 0.93,
-    citizen_approval_rate: 0.86,
-  },
-];
+export interface Policy {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  fund_allocation: number;
+  fund_released: number;
+  beneficiaries: number;
+  status: string;
+  created_at: number;
+  updated_at: number;
+  district: string;
+  contractor?: string;
+  eligibility_criteria: string[];
+  execution_conditions: string[];
+  smart_contract_code: string;
+  blockchain_hash?: string;
+  icp_transaction_id?: string;
+  audit_trail: AuditEntry[];
+  ai_analysis_score?: number;
+  transparency_score: number;
+  citizen_approval_rate: number;
+}
+
+export interface AuditEntry {
+  timestamp: number;
+  action: string;
+  actor: string;
+  details: string;
+  blockchain_hash?: string;
+  icp_transaction_id?: string;
+}
+
+export interface Complaint {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  priority: string;
+  status: string;
+  policy_id?: string;
+  district: string;
+  location?: string;
+  media_links: string[];
+  citizen_id: string;
+  created_at: number;
+  updated_at: number;
+  ai_analysis?: any;
+  audit_score: number;
+  resolution_time?: number;
+}
+
+export interface Proposal {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  proposer: string;
+  created_at: number;
+  voting_start: number;
+  voting_end: number;
+  status: string;
+  yes_votes: number;
+  no_votes: number;
+  abstain_votes: number;
+  total_votes: number;
+  quorum_required: number;
+  execution_data?: any;
+}
+
+export interface Metrics {
+  total_policies_created: number;
+  total_funds_managed: number;
+  total_beneficiaries: number;
+  blockchain_transactions: number;
+  india_hub_integrations: number;
+  ai_optimizations: number;
+  citizen_engagements: number;
+  transparency_score: number;
+  hackathon_score: number;
+  active_policies: number;
+  total_complaints: number;
+  resolved_complaints: number;
+  active_proposals: number;
+}
 
 class CivicLedgerService {
-  private useMocks: boolean = true; // Toggle this to use real ICP
-
-  async getAllPolicies(): Promise<Policy[]> {
-    if (this.useMocks) {
-      return Promise.resolve(MOCK_POLICIES);
-    }
-
-    try {
-      const policies = await enhancedICPService.getWCHL25Metrics();
-      // Convert and return policies
-      return MOCK_POLICIES; // Fallback for now
-    } catch (error) {
-      console.error('Failed to fetch policies:', error);
-      return MOCK_POLICIES;
-    }
-  }
-
-  async getPolicy(policyId: string): Promise<Policy | null> {
-    const policies = await this.getAllPolicies();
-    return policies.find(p => p.id === policyId) || null;
-  }
-
-  async registerPolicy(
-    title: string,
-    description: string,
-    category: string,
-    fundAllocation: bigint,
-    district: string,
-    eligibilityCriteria: string[],
-    executionConditions: string[]
-  ): Promise<{ success: boolean; policyId?: string; error?: string }> {
-    if (this.useMocks) {
-      // Return mock success
-      return {
-        success: true,
-        policyId: `POL-${Date.now()}`,
-      };
-    }
-
-    try {
-      return await enhancedICPService.registerPolicy(
-        title,
-        description,
-        category,
-        fundAllocation,
-        district,
-        eligibilityCriteria,
-        executionConditions
-      );
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      };
-    }
-  }
-
-  async activatePolicy(policyId: string): Promise<{ success: boolean; error?: string }> {
-    if (this.useMocks) {
-      return { success: true };
-    }
-
-    // Implement real activation
-    return { success: true };
-  }
-
-  async releaseFunds(
-    policyId: string,
-    amount: bigint,
-    toAddress: string
-  ): Promise<{ success: boolean; error?: string }> {
-    if (this.useMocks) {
-      return { success: true };
-    }
-
-    // Implement real fund release
-    return { success: true };
-  }
-
-  // Complaint methods
-  async submitComplaint(complaint: {
+  // Policy Management
+  async registerPolicy(policyData: {
     title: string;
     description: string;
     category: string;
-    policyId?: string;
+    fundAllocation: number;
     district: string;
-    location?: string;
-    mediaLinks?: string[];
-  }): Promise<{ success: boolean; complaintId?: string; error?: string }> {
-    if (this.useMocks) {
-      return {
-        success: true,
-        complaintId: `COMP-${Date.now()}`,
-      };
-    }
-
-    return { success: true };
+    eligibilityCriteria: string[];
+    executionConditions: string[];
+  }): Promise<{ success: boolean; policyId?: string; error?: string; aiAnalysis?: any }> {
+    return await enhancedICPService.registerPolicy(policyData);
   }
 
-  // DAO Voting methods
-  async createProposal(proposal: {
+  async getAllPolicies(): Promise<Policy[]> {
+    return await enhancedICPService.getAllPolicies();
+  }
+
+  async getPolicy(policyId: string): Promise<Policy | null> {
+    return await enhancedICPService.getPolicy(policyId);
+  }
+
+  async activatePolicy(policyId: string): Promise<{ success: boolean; error?: string }> {
+    return await enhancedICPService.activatePolicy(policyId);
+  }
+
+  async releaseFunds(policyId: string, amount: number, toAddress: string): Promise<{ success: boolean; flowId?: string; error?: string }> {
+    return await enhancedICPService.releaseFunds(policyId, amount, toAddress);
+  }
+
+  // Complaint Management
+  async submitComplaint(complaintData: {
+    title: string;
+    description: string;
+    category: string;
+    district: string;
+    policyId?: string;
+  }): Promise<{ success: boolean; complaintId?: string; error?: string; aiAnalysis?: any }> {
+    return await enhancedICPService.submitComplaint(complaintData);
+  }
+
+  async getAllComplaints(): Promise<Complaint[]> {
+    return await enhancedICPService.getAllComplaints();
+  }
+
+  // DAO Management
+  async createProposal(proposalData: {
     title: string;
     description: string;
     category: string;
     votingDurationHours: number;
-    quorumRequired: number;
   }): Promise<{ success: boolean; proposalId?: string; error?: string }> {
-    if (this.useMocks) {
-      return {
-        success: true,
-        proposalId: `PROP-${Date.now()}`,
-      };
-    }
-
-    return { success: true };
+    return await enhancedICPService.createProposal(proposalData);
   }
 
-  async castVote(
-    proposalId: string,
-    voter: string,
-    voteType: 'Yes' | 'No' | 'Abstain',
-    votingPower: number
-  ): Promise<{ success: boolean; error?: string }> {
-    if (this.useMocks) {
-      return { success: true };
-    }
-
-    return { success: true };
+  async getAllProposals(): Promise<Proposal[]> {
+    return await enhancedICPService.getAllProposals();
   }
 
-  // Fund tracking methods
-  async getFundAnalytics() {
-    if (this.useMocks) {
-      return {
-        total_funds_allocated: BigInt(1650000000),
-        total_funds_released: BigInt(830000000),
-        total_transactions: 45,
-        average_transaction_amount: BigInt(18444444),
-        district_distribution: new Map(),
-        category_distribution: new Map(),
-        monthly_trends: new Map(),
-        success_rate: 0.96,
-      };
-    }
-
-    return {
-      total_funds_allocated: BigInt(0),
-      total_funds_released: BigInt(0),
-      total_transactions: 0,
-      average_transaction_amount: BigInt(0),
-      district_distribution: new Map(),
-      category_distribution: new Map(),
-      monthly_trends: new Map(),
-      success_rate: 0.0,
-    };
+  async castVote(proposalId: string, voteType: 'Yes' | 'No' | 'Abstain'): Promise<{ success: boolean; error?: string }> {
+    return await enhancedICPService.castVote(proposalId, voteType);
   }
 
-  async getRealTimeMetrics() {
-    if (this.useMocks) {
-      return {
-        current_time: BigInt(Date.now() * 1000000),
-        active_transactions: 12,
-        pending_amount: BigInt(120000000),
-        daily_volume: BigInt(45000000),
-        weekly_volume: BigInt(312000000),
-        monthly_volume: BigInt(1250000000),
-      };
-    }
-
-    return {
-      current_time: BigInt(0),
-      active_transactions: 0,
-      pending_amount: BigInt(0),
-      daily_volume: BigInt(0),
-      weekly_volume: BigInt(0),
-      monthly_volume: BigInt(0),
-    };
+  // Analytics and Metrics
+  async getMetrics(): Promise<Metrics> {
+    return await enhancedICPService.getMetrics();
   }
 
-  // Enable/disable mocks
-  setUseMocks(enabled: boolean) {
-    this.useMocks = enabled;
+  // Authentication
+  async login(): Promise<boolean> {
+    return await enhancedICPService.login();
+  }
+
+  async logout(): Promise<void> {
+    return await enhancedICPService.logout();
+  }
+
+  isAuthenticated(): boolean {
+    return enhancedICPService.isUserAuthenticated();
+  }
+
+  // AI Services
+  async generatePolicySummary(policies: Policy[]): Promise<string> {
+    return await aiService.generatePolicySummary(policies);
+  }
+
+  async analyzeComplaint(description: string): Promise<any> {
+    return await aiService.analyzeComplaint(description);
+  }
+
+  async optimizePolicy(title: string, description: string): Promise<any> {
+    return await aiService.optimizePolicy(title, description);
+  }
+
+  // Utility Methods
+  formatCurrency(amount: number): string {
+    if (amount >= 10000000) {
+      return `₹${(amount / 10000000).toFixed(1)}Cr`;
+    } else if (amount >= 100000) {
+      return `₹${(amount / 100000).toFixed(1)}L`;
+    } else if (amount >= 1000) {
+      return `₹${(amount / 1000).toFixed(1)}K`;
+    }
+    return `₹${amount}`;
+  }
+
+  formatDate(timestamp: number): string {
+    return new Date(timestamp).toLocaleDateString('en-IN', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  getStatusColor(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'active': return 'text-green-600 bg-green-100';
+      case 'draft': return 'text-blue-600 bg-blue-100';
+      case 'paused': return 'text-yellow-600 bg-yellow-100';
+      case 'completed': return 'text-purple-600 bg-purple-100';
+      case 'cancelled': return 'text-red-600 bg-red-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  }
+
+  getPriorityColor(priority: string): string {
+    switch (priority.toLowerCase()) {
+      case 'critical': return 'text-red-600 bg-red-100';
+      case 'high': return 'text-orange-600 bg-orange-100';
+      case 'medium': return 'text-yellow-600 bg-yellow-100';
+      case 'low': return 'text-green-600 bg-green-100';
+      default: return 'text-gray-600 bg-gray-100';
+    }
+  }
+
+  calculateProgress(released: number, allocated: number): number {
+    return allocated > 0 ? Math.min((released / allocated) * 100, 100) : 0;
+  }
+
+  generateMockData(): void {
+    // Initialize with sample data for demo
+    const samplePolicies = [
+      {
+        title: "PM Awas Yojana - Phase 3",
+        description: "Housing for All scheme providing affordable housing to urban poor with enhanced transparency and citizen participation",
+        category: "Housing",
+        fundAllocation: 5000000000,
+        district: "Mumbai",
+        eligibilityCriteria: ["Below Poverty Line", "Urban residence", "No existing house"],
+        executionConditions: ["House completion within 18 months", "Quality standards compliance"]
+      },
+      {
+        title: "Digital India Infrastructure",
+        description: "Building digital infrastructure across rural areas with fiber optic connectivity and digital literacy programs",
+        category: "Technology",
+        fundAllocation: 3000000000,
+        district: "Bangalore",
+        eligibilityCriteria: ["Rural areas", "No internet connectivity"],
+        executionConditions: ["Fiber optic installation", "WiFi hotspot setup"]
+      },
+      {
+        title: "Swachh Bharat Mission 2.0",
+        description: "Enhanced cleanliness drive with waste management and sanitation facilities in urban and rural areas",
+        category: "Environment",
+        fundAllocation: 2500000000,
+        district: "Delhi",
+        eligibilityCriteria: ["Public areas", "Community participation"],
+        executionConditions: ["Waste segregation", "Regular monitoring"]
+      }
+    ];
+
+    // Register sample policies
+    samplePolicies.forEach(async (policy) => {
+      await this.registerPolicy(policy);
+    });
   }
 }
 
 export const civicLedgerService = new CivicLedgerService();
-

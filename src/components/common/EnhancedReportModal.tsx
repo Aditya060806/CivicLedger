@@ -1,8 +1,5 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -17,22 +14,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { civicLedgerService } from "@/lib/civicLedgerService";
 import {
   FileText,
   Upload,
@@ -48,16 +37,14 @@ import {
   Loader2
 } from "lucide-react";
 
-const reportSchema = z.object({
-  title: z.string().min(5, "Title must be at least 5 characters"),
-  description: z.string().min(20, "Description must be at least 20 characters"),
-  category: z.string().min(1, "Please select a category"),
-  priority: z.string().min(1, "Please select priority level"),
-  location: z.string().optional(),
-  media: z.array(z.any()).optional(),
-});
-
-type ReportForm = z.infer<typeof reportSchema>;
+interface ReportFormData {
+  title: string;
+  description: string;
+  category: string;
+  priority: string;
+  location: string;
+  district: string;
+}
 
 interface EnhancedReportModalProps {
   trigger: React.ReactNode;
@@ -71,23 +58,14 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionProgress, setSubmissionProgress] = useState(0);
-  const { toast } = useToast();
   
-  // File input refs
-  const photoInputRef = useRef<HTMLInputElement>(null);
-  const audioInputRef = useRef<HTMLInputElement>(null);
-  const generalFileInputRef = useRef<HTMLInputElement>(null);
-
-  const form = useForm<ReportForm>({
-    resolver: zodResolver(reportSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      category: "",
-      priority: "",
-      location: "",
-      media: [],
-    },
+  const [formData, setFormData] = useState<ReportFormData>({
+    title: "",
+    description: "",
+    category: "",
+    priority: "",
+    location: "",
+    district: ""
   });
 
   const categories = [
@@ -106,9 +84,16 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
     { value: "critical", label: "Critical", color: "bg-red-500" },
   ];
 
+  const districts = [
+    'Central Delhi', 'North Delhi', 'South Delhi', 'East Delhi', 'West Delhi',
+    'New Delhi', 'North East Delhi', 'North West Delhi', 'South East Delhi', 
+    'South West Delhi', 'Shahdara'
+  ];
+
   const analyzeWithAI = async (text: string) => {
+    if (text.length < 20) return;
+    
     setAiAnalyzing(true);
-    // Simulate AI analysis
     setTimeout(() => {
       const suggestions = [
         "This appears to be an infrastructure-related issue with high priority",
@@ -119,45 +104,32 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
       const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
       setAiSuggestion(randomSuggestion);
       setAiAnalyzing(false);
-    }, 2000);
+    }, 1500);
+  };
+
+  const handleInputChange = (field: keyof ReportFormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    
+    if (field === 'description' && value.length > 20) {
+      analyzeWithAI(value);
+    }
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     setUploadedFiles(prev => [...prev, ...files]);
     
-    // Update form data
-    form.setValue('media', [...(form.getValues('media') || []), ...files]);
-    
-    toast({
-      title: "Files Uploaded",
-      description: `${files.length} file(s) uploaded successfully`,
-    });
-  };
-
-  const handlePhotoUpload = () => {
-    photoInputRef.current?.click();
-  };
-
-  const handleAudioUpload = () => {
-    audioInputRef.current?.click();
-  };
-
-  const handleGeneralUpload = () => {
-    generalFileInputRef.current?.click();
+    toast.success(`${files.length} file(s) uploaded successfully`);
   };
 
   const removeFile = (index: number) => {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
-    const currentMedia = form.getValues('media') || [];
-    form.setValue('media', currentMedia.filter((_, i) => i !== index));
   };
 
   const simulateBlockchainSubmission = async () => {
     setIsSubmitting(true);
     setSubmissionProgress(0);
     
-    // Simulate blockchain submission steps
     const steps = [
       { progress: 20, message: "Encrypting data..." },
       { progress: 40, message: "Generating blockchain hash..." },
@@ -170,36 +142,86 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
       await new Promise(resolve => setTimeout(resolve, 800));
       setSubmissionProgress(step.progress);
     }
-    
-    setIsSubmitting(false);
   };
 
-  const onSubmit = async (data: ReportForm) => {
+  const handleSubmit = async () => {
+    // Validation
+    if (!formData.title || formData.title.length < 5) {
+      toast.error("Title must be at least 5 characters");
+      return;
+    }
+    
+    if (!formData.description || formData.description.length < 20) {
+      toast.error("Description must be at least 20 characters");
+      return;
+    }
+    
+    if (!formData.category) {
+      toast.error("Please select a category");
+      return;
+    }
+    
+    if (!formData.priority) {
+      toast.error("Please select priority level");
+      return;
+    }
+
+    if (!formData.district) {
+      toast.error("Please select a district");
+      return;
+    }
+
     try {
       await simulateBlockchainSubmission();
       
-      // Generate a blockchain transaction ID
-      const txId = "0x" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      const reportId = "REP-" + Date.now().toString().slice(-6);
-      
-      toast({
-        title: "Report Submitted Successfully!",
-        description: `Your report has been logged to the blockchain. Transaction ID: ${txId}, Report ID: ${reportId}`,
+      // Submit to service
+      const result = await civicLedgerService.submitComplaint({
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        district: formData.district
       });
-      
-      setOpen(false);
-      form.reset();
-      setStep(1);
-      setUploadedFiles([]);
-      setAiSuggestion(null);
-      setSubmissionProgress(0);
+
+      if (result.success) {
+        const txId = "0x" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const reportId = "REP-" + Date.now().toString().slice(-6);
+        
+        toast.success(`Report submitted successfully! Transaction ID: ${txId}, Report ID: ${reportId}`);
+        
+        // Reset form
+        setFormData({
+          title: "",
+          description: "",
+          category: "",
+          priority: "",
+          location: "",
+          district: ""
+        });
+        setUploadedFiles([]);
+        setAiSuggestion(null);
+        setSubmissionProgress(0);
+        setStep(1);
+        setOpen(false);
+      } else {
+        toast.error(result.error || "Failed to submit report");
+      }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to submit report. Please try again.",
-        variant: "destructive",
-      });
+      toast.error("Failed to submit report. Please try again.");
+    } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const canProceedToNext = () => {
+    switch (step) {
+      case 1:
+        return formData.title.length >= 5 && formData.category && formData.priority && formData.district;
+      case 2:
+        return formData.description.length >= 20;
+      case 3:
+        return true;
+      default:
+        return false;
     }
   };
 
@@ -220,75 +242,71 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
             exit="exit"
             className="space-y-4"
           >
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Issue Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Brief description of the issue" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div>
+              <label className="block text-sm font-medium mb-2">Issue Title *</label>
+              <Input
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                placeholder="Brief description of the issue"
+              />
+              {formData.title.length > 0 && formData.title.length < 5 && (
+                <p className="text-sm text-red-500 mt-1">Title must be at least 5 characters</p>
               )}
-            />
+            </div>
 
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.value} value={category.value}>
-                          <span className="flex items-center gap-2">
-                            <span>{category.icon}</span>
-                            {category.label}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div>
+              <label className="block text-sm font-medium mb-2">Category *</label>
+              <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category.value} value={category.value}>
+                      <span className="flex items-center gap-2">
+                        <span>{category.icon}</span>
+                        {category.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            <FormField
-              control={form.control}
-              name="priority"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Priority Level</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select priority level" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {priorities.map((priority) => (
-                        <SelectItem key={priority.value} value={priority.value}>
-                          <span className="flex items-center gap-2">
-                            <div className={`w-3 h-3 rounded-full ${priority.color}`}></div>
-                            {priority.label}
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div>
+              <label className="block text-sm font-medium mb-2">Priority Level *</label>
+              <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {priorities.map((priority) => (
+                    <SelectItem key={priority.value} value={priority.value}>
+                      <span className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${priority.color}`}></div>
+                        {priority.label}
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">District *</label>
+              <Select value={formData.district} onValueChange={(value) => handleInputChange('district', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select district" />
+                </SelectTrigger>
+                <SelectContent>
+                  {districts.map((district) => (
+                    <SelectItem key={district} value={district}>
+                      {district}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </motion.div>
         );
 
@@ -301,29 +319,18 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
             exit="exit"
             className="space-y-4"
           >
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Detailed Description</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Provide detailed information about the issue..."
-                      className="min-h-[120px]"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        if (e.target.value.length > 50) {
-                          analyzeWithAI(e.target.value);
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div>
+              <label className="block text-sm font-medium mb-2">Detailed Description *</label>
+              <Textarea 
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Provide detailed information about the issue..."
+                className="min-h-[120px]"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {formData.description.length} characters (minimum 20 required)
+              </p>
+            </div>
 
             {aiAnalyzing && (
               <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -344,22 +351,18 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
               </div>
             )}
 
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input placeholder="Enter location or address" className="pl-10" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div>
+              <label className="block text-sm font-medium mb-2">Location (Optional)</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  value={formData.location}
+                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  placeholder="Enter location or address" 
+                  className="pl-10" 
+                />
+              </div>
+            </div>
           </motion.div>
         );
 
@@ -373,7 +376,7 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
             className="space-y-4"
           >
             <div>
-              <label className="text-sm font-medium mb-2 block">Attach Evidence</label>
+              <label className="text-sm font-medium mb-2 block">Attach Evidence (Optional)</label>
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                 <div className="flex flex-col items-center gap-2">
                   <Upload className="w-8 h-8 text-muted-foreground" />
@@ -385,7 +388,7 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
                       type="button"
                       variant="outline" 
                       size="sm"
-                      onClick={handlePhotoUpload}
+                      onClick={() => document.getElementById('photo-input')?.click()}
                     >
                       <Camera className="w-4 h-4 mr-1" />
                       Photo
@@ -394,7 +397,7 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
                       type="button"
                       variant="outline" 
                       size="sm"
-                      onClick={handleAudioUpload}
+                      onClick={() => document.getElementById('audio-input')?.click()}
                     >
                       <Mic className="w-4 h-4 mr-1" />
                       Audio
@@ -403,30 +406,29 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
                       type="button"
                       variant="outline" 
                       size="sm"
-                      onClick={handleGeneralUpload}
+                      onClick={() => document.getElementById('file-input')?.click()}
                     >
                       <FileText className="w-4 h-4 mr-1" />
                       Files
                     </Button>
                   </div>
                   
-                  {/* Hidden file inputs */}
                   <input
-                    ref={photoInputRef}
+                    id="photo-input"
                     type="file"
                     accept="image/*"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
                   <input
-                    ref={audioInputRef}
+                    id="audio-input"
                     type="file"
                     accept="audio/*"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
                   <input
-                    ref={generalFileInputRef}
+                    id="file-input"
                     type="file"
                     multiple
                     accept="image/*,audio/*,video/*,.pdf,.doc,.docx"
@@ -492,101 +494,83 @@ export const EnhancedReportModal = ({ trigger }: EnhancedReportModalProps) => {
       <DialogTrigger asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden mobile-optimized enhanced-blur border-civic-blue/20 shadow-modal">
-        <div className="bg-gradient-trust text-foreground p-6 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-civic-blue/10 via-civic-mint/5 to-civic-green/10"></div>
-          <div className="relative z-10">
-            <DialogHeader>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <DialogTitle className="text-2xl font-bold text-civic-blue flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-civic rounded-xl flex items-center justify-center">
-                    <Shield className="w-6 h-6 text-white" />
-                  </div>
-                  Submit Issue Report
-                </DialogTitle>
-                <DialogDescription className="text-civic-slate mt-2">
-                  Help improve governance by reporting issues transparently on the blockchain
-                </DialogDescription>
-              </motion.div>
-            </DialogHeader>
-            
-            <motion.div 
-              className="mt-6"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-            >
-              <div className="flex items-center justify-between text-sm text-civic-slate">
-                <span className="font-medium">Step {step} of 3</span>
-                <span className="font-medium">{Math.round((step / 3) * 100)}% Complete</span>
+      <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden">
+        <div className="bg-gradient-to-r from-civic-blue/10 to-civic-green/10 text-foreground p-6">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-civic-blue flex items-center gap-3">
+              <div className="w-10 h-10 bg-civic-blue rounded-xl flex items-center justify-center">
+                <Shield className="w-6 h-6 text-white" />
               </div>
-              <div className="mt-3 h-2 bg-civic-gray-200 rounded-full overflow-hidden">
-                <motion.div 
-                  className="h-full bg-gradient-civic rounded-full"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(step / 3) * 100}%` }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
-                />
-              </div>
-            </motion.div>
+              Submit Issue Report
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground mt-2">
+              Help improve governance by reporting issues transparently on the blockchain
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="mt-6">
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span className="font-medium">Step {step} of 3</span>
+              <span className="font-medium">{Math.round((step / 3) * 100)}% Complete</span>
+            </div>
+            <div className="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <motion.div 
+                className="h-full bg-civic-blue rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${(step / 3) * 100}%` }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              />
+            </div>
           </div>
         </div>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 space-y-6">
-            <AnimatePresence mode="wait">
-              {renderStep()}
-            </AnimatePresence>
+        <div className="p-6 space-y-6">
+          <AnimatePresence mode="wait">
+            {renderStep()}
+          </AnimatePresence>
 
-            <div className="flex justify-between pt-4">
-              {step > 1 && (
+          <div className="flex justify-between pt-4">
+            {step > 1 && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setStep(step - 1)}
+                disabled={isSubmitting}
+              >
+                Previous
+              </Button>
+            )}
+            
+            <div className="flex gap-2 ml-auto">
+              {step < 3 ? (
                 <Button
                   type="button"
-                  variant="outline"
-                  onClick={() => setStep(step - 1)}
+                  onClick={() => setStep(step + 1)}
+                  disabled={!canProceedToNext() || isSubmitting}
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleSubmit}
                   disabled={isSubmitting}
                 >
-                  Previous
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-4 h-4 mr-2" />
+                      Submit to Blockchain
+                    </>
+                  )}
                 </Button>
               )}
-              
-              <div className="flex gap-2 ml-auto">
-                {step < 3 ? (
-                  <Button
-                    type="button"
-                    onClick={() => setStep(step + 1)}
-                    className="bg-gradient-civic"
-                    disabled={isSubmitting}
-                  >
-                    Next
-                  </Button>
-                ) : (
-                  <Button 
-                    type="submit" 
-                    className="bg-gradient-civic"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="w-4 h-4 mr-2" />
-                        Submit to Blockchain
-                      </>
-                    )}
-                  </Button>
-                )}
-              </div>
             </div>
-          </form>
-        </Form>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

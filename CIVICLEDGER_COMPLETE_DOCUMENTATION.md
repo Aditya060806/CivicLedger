@@ -62,7 +62,7 @@ CivicLedger solves these problems by:
 ### 🔹 4. DAO Voting & Governance Layer
 - **Decentralized Decision Making**: Citizens and auditors vote on fund release/stall decisions
 - **Proposal Management**: Create, discuss, and vote on governance proposals
-- **Real-time Dashboard**: Live view of proposals, vote percentages, and outcome previews
+-- **Real-time Dashboard**: (Removed from UI) Live view of proposals, vote percentages, and outcome previews
 - **Quorum Management**: Configurable voting thresholds and participation requirements
 
 ### 🔹 5. Enhanced Execution Dashboard

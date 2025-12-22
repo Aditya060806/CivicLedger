@@ -8,21 +8,16 @@ import { ThemeProvider } from "next-themes";
 import { PageLoader } from "@/components/common/PageLoader";
 import { Layout } from "@/components/layout/Layout";
 import { FloatingReportButton } from "@/components/common/FloatingReportButton";
-import { AIChatbot } from "@/components/common/AIChatbot";
+import { EnhancedAIChatbot } from "@/components/common/EnhancedAIChatbot";
 import { AnimatePresence } from "framer-motion";
 import { Home } from "./pages/Home";
-import { Dashboard } from "./pages/Dashboard";
-import { CitizenPortal } from "./pages/CitizenPortal";
-import { DAOVoting } from "./pages/DAOVoting";
-import { PolicyMaker } from "./pages/PolicyMaker";
+import { EnhancedDashboard } from "./components/common/EnhancedDashboard";
+import { EnhancedCitizenPortal } from "./components/common/EnhancedCitizenPortal";
+import { EnhancedDAOVoting } from "./components/common/EnhancedDAOVoting";
+import { EnhancedPolicyMaker } from "./components/common/EnhancedPolicyMaker";
 import { AuditorPanel } from "./pages/AuditorPanel";
 import { ContractorView } from "./pages/ContractorView";
 import { CitizenReport } from "./pages/CitizenReport";
-
-import { WCHL25Dashboard } from "./components/dashboard/WCHL25Dashboard";
-import EnhancedWCHL25Dashboard from "./components/dashboard/EnhancedWCHL25Dashboard";
-import { MockDashboard } from "./pages/MockDashboard";
-import { RealTimeDashboard } from "./pages/RealTimeDashboard";
 import NotFound from "./pages/NotFound";
 import { enhancedICPService } from "./lib/enhancedICPService";
 
@@ -82,24 +77,18 @@ function AppContent() {
         <AnimatePresence mode="wait" initial={false}>
           <Routes key={location.pathname}>
             <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/citizen" element={<CitizenPortal />} />
-            <Route path="/voting" element={<DAOVoting />} />
-            <Route path="/policy-maker" element={<PolicyMaker />} />
+            <Route path="/dashboard" element={<EnhancedDashboard />} />
+            <Route path="/citizen" element={<EnhancedCitizenPortal />} />
+            <Route path="/voting" element={<EnhancedDAOVoting />} />
+            <Route path="/policy-maker" element={<EnhancedPolicyMaker />} />
             <Route path="/auditor" element={<AuditorPanel />} />
             <Route path="/contractor" element={<ContractorView />} />
             <Route path="/report" element={<CitizenReport />} />
-            
-            <Route path="/wchl25-dashboard" element={<WCHL25Dashboard />} />
-            <Route path="/enhanced-wchl25-dashboard" element={<EnhancedWCHL25Dashboard />} />
-            <Route path="/mock-dashboard" element={<MockDashboard />} />
-            <Route path="/real-time-dashboard" element={<RealTimeDashboard />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>
         <FloatingReportButton />
-        <AIChatbot />
+        <EnhancedAIChatbot />
       </Layout>
     </>
   );
