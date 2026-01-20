@@ -10,7 +10,7 @@
 
 ## 🎯 Project Overview
 
-CivicLedger is a revolutionary decentralized governance platform that transforms government policies into executable smart contracts on the Internet Computer Protocol (ICP). The platform provides real-time transparency, citizen participation, and automated execution of government policies.
+CivicLedger is a revolutionary decentralized governance platform that transforms government policies into executable smart contracts on the Internet Computer Protocol (ICP). The platform provides real-time transparency, citizen participation, and automated execution of government policies.aditya
 
 ### 🌟 Key Features
 
